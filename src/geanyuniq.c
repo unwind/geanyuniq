@@ -82,6 +82,25 @@ static guint geany_uniq_document(ScintillaObject *sci, GString *prev)
 	return count;
 }
 
+/* -------------------------------------------------------------------------------------------------------------- */
+
+static guint geany_uniq_selection(ScintillaObject *sci, GString *prev)
+{
+	const gint	sel_start = sci_get_selection_start(sci);
+	const gint	sel_end = sci_get_selection_end(sci);
+	gint		sel_line_start, sel_line_end;
+
+	if(sci_get_col_from_position(sci, sel_start) != 0 || sci_get_col_from_position(sci, sel_end) != 0)
+		return 0;
+
+	sel_line_start = sci_get_line_from_position(sci, sel_start);
+	sel_line_end = sci_get_line_from_position(sci, sel_end);
+
+	return 0;
+}
+
+/* -------------------------------------------------------------------------------------------------------------- */
+
 /* Remove duplicate lines, leaving the first line. */
 static void run_geany_uniq(void)
 {
@@ -100,11 +119,14 @@ static void run_geany_uniq(void)
 		sci_start_undo_action(sci);
 		if(!sci_has_selection(sci))
 			count = geany_uniq_document(sci, prev);
+		else
+			count = geany_uniq_selection(sci, prev);
 		sci_end_undo_action(sci);
 
-		g_string_free(prev, TRUE);
 		if(count > 0)
 			msgwin_status_add("Geanyuniq deleted %u duplicate lines.", count);
+
+		g_string_free(prev, TRUE);
 	}
 }
 
