@@ -97,8 +97,11 @@ static void run_geany_uniq(void)
 	{
 		guint	count;
 
+		sci_start_undo_action(sci);
 		if(!sci_has_selection(sci))
 			count = geany_uniq_document(sci, prev);
+		sci_end_undo_action(sci);
+
 		g_string_free(prev, TRUE);
 		if(count > 0)
 			msgwin_status_add("Geanyuniq deleted %u duplicate lines.", count);
