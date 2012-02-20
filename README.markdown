@@ -34,15 +34,11 @@ Keeping a symbolic link will of course make it easier to update the plugin if th
 
 
 #Running Geanyuniq#
-By default, Geanyuniq assigns itself to the keyboard shortcut Shift+Control+D. This is quite natural, since Control+D in turn is bound to the "Duplicate Line or Selection" command by default.
+By default, Geanyuniq does not assigns itself a the keyboard shortcut, but you can easily do this through Geany's main Preferences window.
 
 
 ##Finding Geanyuniq in the Menus##
-Geanyuniq tries to insert its menu item in Geany's "Edit" menu, so that it appears right after the "Duplicate Line or Selection" command. This is a bit non-standard, adventurous programming, and thus might break. The insertion is based on the phrasing of the text in Geany's built-in menus, and will not cope with running Geany in non-English.
-
-To fix this, edit the `MENU_EDIT_LABEL` and `MENU_DUPLICATE_LABEL` strings at the top of the source code, replacing the default English text with your desired locale's.
-
-The menu installation code tries to fall back to just appending to the Tools menu if it fails to find the "Edit" menu.
+Geanyuniq simply appends a single menu item to the Tools menu, labelled "Delete Duplicate Lines".
 
 
 ##Configuring Geanyuniq##
