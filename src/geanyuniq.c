@@ -25,7 +25,7 @@
 
 #include "geanyplugin.h"
 
-#define	MNEMONIC_NAME		"geanyuniq"
+#define	MNEMONIC_NAME	"geanyuniq"
 
 GeanyPlugin         *geany_plugin;
 GeanyData           *geany_data;
@@ -50,6 +50,38 @@ static struct {
 
 /* -------------------------------------------------------------------------------------------------------------- */
 
+/* Remove duplicate lines from the entire document. */
+static guint geany_uniq_document(ScintillaObject *sci, GString *prev)
+{
+	gint	index = 0, pos;
+	gchar	*here;
+	guint	count = 0;
+
+	while((here = sci_get_line(sci, index)) != NULL && *here != '\0')
+	{
+		const gboolean	skip = (index == 0) || strcmp(here, prev->str) != 0;
+
+		if(skip)
+		{
+			g_string_assign(prev, here);
+			index++;
+		}
+		else
+		{
+			/* Line is identical to the previous, delete it. */
+			pos = sci_get_position_from_line(sci, index);
+			sci_set_selection_start(sci, pos);
+			sci_set_selection_end(sci, pos + sci_get_line_length(sci, index));
+			sci_replace_sel(sci, "");
+			count++;
+		}
+		g_free(here);
+	}
+	g_free(here);
+
+	return count;
+}
+
 /* Remove duplicate lines, leaving the first line. */
 static void run_geany_uniq(void)
 {
@@ -63,30 +95,10 @@ static void run_geany_uniq(void)
 		return;
 	if((prev = g_string_sized_new(512)) != NULL)
 	{
-		gint	index = 0, pos;
-		gchar	*here;
-		guint	count = 0;
+		guint	count;
 
-		while((here = sci_get_line(sci, index)) != NULL && *here != '\0')
-		{
-			const gboolean	skip = (index == 0) || strcmp(here, prev->str) != 0;
-
-			if(skip)
-			{
-				g_string_assign(prev, here);
-				index++;
-			}
-			else
-			{
-				/* Line is identical to the previous, delete it. */
-				pos = sci_get_position_from_line(sci, index);
-				sci_set_selection_start(sci, pos);
-				sci_set_selection_end(sci, pos + sci_get_line_length(sci, index));
-				sci_replace_sel(sci, "");
-				count++;
-			}
-			g_free(here);
-		}
+		if(!sci_has_selection(sci))
+			count = geany_uniq_document(sci, prev);
 		g_string_free(prev, TRUE);
 		if(count > 0)
 			msgwin_status_add("Geanyuniq deleted %u duplicate lines.", count);
