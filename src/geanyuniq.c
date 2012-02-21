@@ -84,19 +84,39 @@ static guint geany_uniq_document(ScintillaObject *sci, GString *prev)
 
 /* -------------------------------------------------------------------------------------------------------------- */
 
+/* Remove duplicate lines from the selection. */
 static guint geany_uniq_selection(ScintillaObject *sci, GString *prev)
 {
 	const gint	sel_start = sci_get_selection_start(sci);
 	const gint	sel_end = sci_get_selection_end(sci);
-	gint		sel_line_start, sel_line_end;
+	const gint	sel_line_start = sci_get_line_from_position(sci, sel_start);
+	const gint	sel_line_end = sci_get_line_from_position(sci, sel_end);
+	gchar		*here;
+	gint		line = sel_line_start, global_line = line;
+	guint		count = 0;
 
-	if(sci_get_col_from_position(sci, sel_start) != 0 || sci_get_col_from_position(sci, sel_end) != 0)
-		return 0;
+	while(global_line <= sel_line_end && (here = sci_get_line(sci, line)) != NULL && *here != '\0')
+	{
+		const gboolean	skip = (prev->len == 0) || (strcmp(here, prev->str) != 0);
 
-	sel_line_start = sci_get_line_from_position(sci, sel_start);
-	sel_line_end = sci_get_line_from_position(sci, sel_end);
+		if(skip)
+		{
+			g_string_assign(prev, here);
+			line++;
+		}
+		else
+		{
+			const gint	pos = sci_get_position_from_line(sci, line);
+			sci_set_selection_start(sci, pos);
+			sci_set_selection_end(sci, pos + sci_get_line_length(sci, line));
+			sci_replace_sel(sci, "");
+			count++;
+		}
+		global_line++;
+	}
+	g_free(here);
 
-	return 0;
+	return count;
 }
 
 /* -------------------------------------------------------------------------------------------------------------- */
