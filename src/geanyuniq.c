@@ -50,52 +50,16 @@ static struct {
 
 /* -------------------------------------------------------------------------------------------------------------- */
 
-/* Remove duplicate lines from the entire document. */
-static guint geany_uniq_document(ScintillaObject *sci, GString *prev)
+/* Remove duplicate lines from the given position range. Positions are "rounded" to the lines they're in. */
+static guint geany_uniq_range(ScintillaObject *sci, GString *prev, gint pos_start, gint pos_end)
 {
-	gint	index = 0, pos;
-	gchar	*here;
-	guint	count = 0;
-
-	while((here = sci_get_line(sci, index)) != NULL && *here != '\0')
-	{
-		const gboolean	skip = (index == 0) || strcmp(here, prev->str) != 0;
-
-		if(skip)
-		{
-			g_string_assign(prev, here);
-			index++;
-		}
-		else
-		{
-			/* Line is identical to the previous, delete it. */
-			pos = sci_get_position_from_line(sci, index);
-			sci_set_selection_start(sci, pos);
-			sci_set_selection_end(sci, pos + sci_get_line_length(sci, index));
-			sci_replace_sel(sci, "");
-			count++;
-		}
-		g_free(here);
-	}
-	g_free(here);
-
-	return count;
-}
-
-/* -------------------------------------------------------------------------------------------------------------- */
-
-/* Remove duplicate lines from the selection. */
-static guint geany_uniq_selection(ScintillaObject *sci, GString *prev)
-{
-	const gint	sel_start = sci_get_selection_start(sci);
-	const gint	sel_end = sci_get_selection_end(sci);
-	const gint	sel_line_start = sci_get_line_from_position(sci, sel_start);
-	const gint	sel_line_end = sci_get_line_from_position(sci, sel_end);
+	const gint	line_start = sci_get_line_from_position(sci, pos_start);
+	const gint	line_end = sci_get_line_from_position(sci, pos_end);
 	gchar		*here;
-	gint		line = sel_line_start, global_line = line;
+	gint		line = line_start, global_line = line;
 	guint		count = 0;
 
-	while(global_line <= sel_line_end && (here = sci_get_line(sci, line)) != NULL && *here != '\0')
+	while(global_line <= line_end && (here = sci_get_line(sci, line)) != NULL && *here != '\0')
 	{
 		const gboolean	skip = (prev->len == 0) || (strcmp(here, prev->str) != 0);
 
@@ -138,9 +102,9 @@ static void run_geany_uniq(void)
 
 		sci_start_undo_action(sci);
 		if(!sci_has_selection(sci))
-			count = geany_uniq_document(sci, prev);
+			count = geany_uniq_range(sci, prev, 0, sci_get_length(sci));
 		else
-			count = geany_uniq_selection(sci, prev);
+			count = geany_uniq_range(sci, prev, sci_get_selection_start(sci), sci_get_selection_end(sci));
 		sci_end_undo_action(sci);
 
 		if(count > 0)
