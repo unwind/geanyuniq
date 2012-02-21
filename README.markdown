@@ -34,11 +34,12 @@ Keeping a symbolic link will of course make it easier to update the plugin if th
 
 
 #Running Geanyuniq#
-By default, Geanyuniq does not assigns itself a the keyboard shortcut, but you can easily do this through Geany's main Preferences window.
+By default, Geanyuniq does not assigns itself a keyboard shortcut, but you can easily do this through Geany's main Preferences window.
+You can also find a menu item labelled "Delete Duplicate Lines" in the "Tools" menu.
 
-
-##Finding Geanyuniq in the Menus##
-Geanyuniq simply appends a single menu item to the Tools menu, labelled "Delete Duplicate Lines".
+If you run the command with a selection active, duplicate lines will only be deleted in the selection. Geanyuniq will consider the line that the selection starts
+on to be part of the selection, even if the selection starts somewhere in the middle of the line. It will also consider the line that the selection ends on to be
+the last line of the selection, i.e. the entire line might be removed if it's the same as the one before it.
 
 
 ##Configuring Geanyuniq##

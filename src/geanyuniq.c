@@ -35,7 +35,7 @@ PLUGIN_VERSION_CHECK(147)
 
 PLUGIN_SET_INFO("Geanyuniq",
 		"A plugin to automatically delete duplicate lines in the entire document, named after the \"uniq\" shell command.",
-		"1.1",
+		"1.2",
 		"Emil Brink <emil@obsession.se>")
 
 enum {
@@ -71,6 +71,7 @@ static guint geany_uniq_range(ScintillaObject *sci, GString *prev, gint pos_star
 		else
 		{
 			const gint	pos = sci_get_position_from_line(sci, line);
+
 			sci_set_selection_start(sci, pos);
 			sci_set_selection_end(sci, pos + sci_get_line_length(sci, line));
 			sci_replace_sel(sci, "");
@@ -116,6 +117,11 @@ static void run_geany_uniq(void)
 
 /* -------------------------------------------------------------------------------------------------------------- */
 
+static void cb_menu_item_activated(GtkWidget *wid, gpointer user)
+{
+	run_geany_uniq();
+}
+
 static gboolean cb_key_group_callback(guint key_id)
 {
 	switch(key_id)
@@ -133,6 +139,7 @@ void plugin_init(GeanyData *geany_data)
 {
 	/* This plugin implements a single command, coupled with a menu item. */
 	geany_uniq.menu_item = ui_image_menu_item_new(NULL, _("Delete Duplicate Lines"));
+	g_signal_connect(G_OBJECT(geany_uniq.menu_item), "activate", G_CALLBACK(cb_menu_item_activated), NULL);
 	gtk_widget_show_all(geany_uniq.menu_item);
 	gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu), geany_uniq.menu_item);
 
