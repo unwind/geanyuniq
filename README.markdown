@@ -19,6 +19,8 @@ After running Geanyuniq on this document, the contents would be:
     baz
     foo
 
+**NOTE:** There are still two occurances of the line whose content is just `foo`; Geanyuniq will only remove duplicate lines that are immediately next to each other.
+
 
 ##Installation##
 At the moment, Geanyuniq is not available in any pre-packaged form, so you need to build it yourself. Luckily, that isn't too hard. The following steps should do it:
