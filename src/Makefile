@@ -4,8 +4,10 @@
 
 BASENAME=geanyuniq
 
-CFLAGS=`pkg-config --cflags geany` -fPIC -Wall -pedantic -g
+CFLAGS=`pkg-config --cflags geany` -fPIC -Wall -pedantic -O3
 LDLIBS=`pkg-config --libs geany`
+
+OBJS=bloomfilter.o murmurhash.o
 
 PLUGINDIR=`pkg-config --variable=libdir geany`/geany
 
@@ -13,10 +15,14 @@ PLUGINDIR=`pkg-config --variable=libdir geany`/geany
 
 # --------------------------------------------------------------
 
-$(BASENAME).so:	$(BASENAME).o
-		gcc -shared -o $@ $(LDLIBS) $<
+$(BASENAME).so:	$(BASENAME).o $(OBJS)
+		gcc -shared -o $@ $(LDLIBS) $^
 
 $(BASENAME).o:	$(BASENAME).c
+
+bloomfilter.o:	bloomfilter.c bloomfilter.h
+
+murmurhash.o:	murmurhash.c murmurhash.h
 
 # --------------------------------------------------------------
 
