@@ -1,7 +1,7 @@
 /*
  * Geanyuniq - A geany plugin to delete duplicate lines.
  *
- * Copyright (C) 2012 by Emil Brink <emil@obsession.se>.
+ * Copyright (C) 2012-2013 by Emil Brink <emil@obsession.se>.
  *
  * This file is part of Geanyuniq.
  *
