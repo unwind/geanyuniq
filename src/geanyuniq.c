@@ -146,7 +146,7 @@ static guint geany_uniq_global_range(ScintillaObject *sci, gint pos_start, gint 
 	gchar		*here = NULL;
 	guint		count = 0;
 
-	if((bf = bloom_filter_new_with_probability(1e-4, num_lines, cb_contains, &gi)) == NULL)
+	if((bf = bloom_filter_new_with_probability(1e-4f, num_lines, cb_contains, &gi)) == NULL)
 		return 0;
 
 	gi.sci = sci;
@@ -163,6 +163,7 @@ static guint geany_uniq_global_range(ScintillaObject *sci, gint pos_start, gint 
 			/* This line seems unique; remember it in the filter and move to the next one. */
 			bloom_filter_insert(bf, here, length);
 			line++;
+			gi.global_line++;
 		}
 		else
 		{	/* Line was not unique, delete it. */
@@ -173,7 +174,6 @@ static guint geany_uniq_global_range(ScintillaObject *sci, gint pos_start, gint 
 			sci_replace_sel(sci, "");
 			count++;
 		}
-		gi.global_line++;
 		g_free(here);
 	}
 	bloom_filter_destroy(bf);
