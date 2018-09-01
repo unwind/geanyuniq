@@ -32,7 +32,7 @@ However, after running "Delete All Duplicate Lines", the result is:
 
 Notice how this removes all duplicates.
 
-##Installation##
+## Installation ##
 At the moment, Geanyuniq is not available in any pre-packaged form, so you need to build it yourself. Luckily, that isn't too hard. The following steps should do it:
 
 1. Grab the code (`git clone git://github.com/unwind/geanyuniq.git`)
@@ -41,26 +41,21 @@ At the moment, Geanyuniq is not available in any pre-packaged form, so you need 
 4. There are two options here. If you just want to *use* the version of Geanyuniq you just built, and not keep updating it if the source changes, type `sudo make install`. If you want to keep the source (for updates, hacking, whatever), type `sudo make install-dev`.
 5. If you went with the `make install` option, you can now delete the directory holding the source code.
 
-
-#Running Geanyuniq#
+# Running Geanyuniq #
 By default, Geanyuniq does not assigns itself any keyboard shortcuts, but you can easily do this through Geany's main Preferences window.
 
 So, to invoke Geanyuniq, use the two new menu items in the "Tools" menu, labelled "Delete Adjacent Duplicate Lines" and
 "Delete All Duplicate Lines".
 
-
-##Selection Handling##
-
+## Selection Handling ##
 Either command will, when run, check for a selection and if one exists duplicates will only be deleted *inside* the selection.
 
-Geanyuniq will consider the line that the selection starts on to be part of the selection, even if the selection starts somewhere
-in the middle of the line. It will also consider the line that the selection ends on to be the last line of the selection, i.e.
+Geanyuniq will consider the line that the selection starts on to be part of the selection, even if the selection starts somewhere in the middle of the line.
+It will also consider the line that the selection ends on to be the last line of the selection, i.e.
 the entire line might be removed if it's the same as the one before it.
 
-
-##Configuring Geanyuniq##
+## Configuring Geanyuniq ##
 Currently, Geanyuniq has no configuration options.
 
-
-#Feedback#
+# Feedback #
 Please contact the author, Emil Brink (by e-mailing &lt;emil@obsession.se&gt;) regarding any bugs, comments, or thoughts about Geanyuniq. Enjoy.
