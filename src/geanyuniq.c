@@ -36,7 +36,7 @@ PLUGIN_VERSION_CHECK(147)
 
 PLUGIN_SET_INFO("Geanyuniq",
 		"A plugin to automatically delete duplicate lines in the entire document, named after the \"uniq\" shell command.",
-		"2.1",
+		"2.2",
 		"Emil Brink <emil@obsession.se>")
 
 enum {
