@@ -1,7 +1,7 @@
 /*
  * Geanyuniq - A geany plugin to delete duplicate lines.
  *
- * Copyright (C) 2012-2013 by Emil Brink <emil@obsession.se>.
+ * Copyright (C) 2012-2023 by Emil Brink <emil@obsession.se>.
  *
  * This file is part of Geanyuniq.
  *
@@ -54,15 +54,15 @@ static struct {
 
 /* -------------------------------------------------------------------------------------------------------------- */
 
-/* A more sensical API for getting a aline of text from Scintilla. I don't understand
+/* A more sensical API for getting a line of text from Scintilla. I don't understand
  * how returning a 0-length string for "end of buffer" makes sense to anyone. Not
  * const clean, since Scintilla isn't.
 */
 static gchar * my_sci_get_line(ScintillaObject *sci, gint linenumber)
 {
-	gchar	*text = sci_get_line(sci, linenumber);
+	gchar * const text = sci_get_line(sci, linenumber);
 
-	if(text == NULL || *text == '\0')
+	if (text == NULL || *text == '\0')
 	{
 		g_free(text);
 		return NULL;
@@ -82,13 +82,13 @@ static guint geany_uniq_adjacent_range(ScintillaObject *sci, gint pos_start, gin
 	guint		count = 0;
 	GString		*prev;
 
-	if((prev = g_string_sized_new(512)) == NULL)
+	if ((prev = g_string_sized_new(512)) == NULL)
 		return 0;
-	while(global_line <= line_end && (here = my_sci_get_line(sci, line)) != NULL)
+	while (global_line <= line_end && (here = my_sci_get_line(sci, line)) != NULL)
 	{
 		const gboolean	skip = (prev->len == 0) || (strcmp(here, prev->str) != 0);
 
-		if(skip)
+		if (skip)
 		{
 			g_string_assign(prev, here);
 			line++;
@@ -121,13 +121,12 @@ typedef struct {
 static gboolean cb_contains(gpointer user, const gchar *string, gsize length)
 {
 	const GlobalInfo	*gi = user;
-	gint			i;
 	gboolean		ret = FALSE;
 
-	for(i = gi->line_start; !ret && i < gi->line_end; i++)
+	for (gint i = gi->line_start; !ret && i < gi->line_end; i++)
 	{
 		gchar	*here = sci_get_line(gi->sci, i);
-		if(i == gi->global_line)
+		if (i == gi->global_line)
 			continue;
 		ret = strcmp(here, string) == 0;
 		g_free(here);
@@ -145,24 +144,24 @@ static guint geany_uniq_global_range(ScintillaObject *sci, gint pos_start, gint 
 	gchar		*here = NULL;
 	guint		count = 0;
 
-	if((bf = bloom_filter_new_with_probability(1e-4f, num_lines, cb_contains, &gi)) == NULL)
+	if ((bf = bloom_filter_new_with_probability(1e-4f, num_lines, cb_contains, &gi)) == NULL)
 		return 0;
 
 	gi.sci = sci;
 	gi.line_start = sci_get_line_from_position(sci, pos_start);
 	gi.line_end = sci_get_line_from_position(sci, pos_end);
 	gi.global_line = line = gi.line_start;
-	while(gi.global_line <= gi.line_end && (here = my_sci_get_line(sci, line)) != NULL)
+	while (gi.global_line <= gi.line_end && (here = my_sci_get_line(sci, line)) != NULL)
 	{
 		const gssize	length = sci_get_line_length(sci, line);
 		const gboolean	skip = bloom_filter_size(bf) == 0 || !bloom_filter_contains(bf, here, length);
 
-		if(skip)
+		if (skip)
 		{
 			/* This line seems unique; remember it in the filter and move to the next one. */
 			bloom_filter_insert(bf, here, length);
-			line++;
-			gi.global_line++;
+			++line;
+			++gi.global_line;
 		}
 		else
 		{	/* Line was not unique, delete it. */
@@ -171,7 +170,7 @@ static guint geany_uniq_global_range(ScintillaObject *sci, gint pos_start, gint 
 			sci_set_selection_start(sci, pos);
 			sci_set_selection_end(sci, pos + sci_get_line_length(sci, line));
 			sci_replace_sel(sci, "");
-			count++;
+			++count;
 		}
 		g_free(here);
 	}
@@ -192,12 +191,12 @@ static void run_geany_uniq(gboolean global)
 	gint		pos_start, pos_end;
 	guint		count;
 
-	if((doc = document_get_current()) == NULL)
+	if ((doc = document_get_current()) == NULL)
 		return;
-	if((sci = doc->editor->sci) == NULL)
+	if ((sci = doc->editor->sci) == NULL)
 		return;
 
-	if(sci_has_selection(sci))
+	if (sci_has_selection(sci))
 	{
 		pos_start = sci_get_selection_start(sci);
 		pos_end = sci_get_selection_end(sci);
@@ -209,13 +208,13 @@ static void run_geany_uniq(gboolean global)
 	}
 
 	sci_start_undo_action(sci);
-	if(global)
+	if (global)
 		count = geany_uniq_global_range(sci, pos_start, pos_end);
 	else
 		count = geany_uniq_adjacent_range(sci, pos_start, pos_end);
 	sci_end_undo_action(sci);
 
-	if(count > 0)
+	if (count > 0)
 		msgwin_status_add("Geanyuniq deleted %u duplicate lines.", count);
 }
 
@@ -228,7 +227,7 @@ static void cb_menu_item_activated(GtkWidget *wid, gpointer user)
 
 static gboolean cb_key_group_callback(guint key_id)
 {
-	switch(key_id)
+	switch (key_id)
 	{
 	case KEY_GEANY_UNIQ_ADJACENT:
 		run_geany_uniq(FALSE);

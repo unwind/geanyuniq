@@ -2,7 +2,7 @@
  * A Bloom Filter implementation, on top of glib. The assumed data is 0-terminated
  * strings of characters.
  *
- * Copyright (C) 2012 by Emil Brink <emil@obsession.se>.
+ * Copyright (C) 2012-2023 by Emil Brink <emil@obsession.se>.
  *
  * This file is part of Geanyuniq.
  *

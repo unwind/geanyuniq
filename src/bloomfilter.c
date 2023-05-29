@@ -2,7 +2,7 @@
  * A Bloom Filter implementation, on top of glib. The assumed data is 0-terminated
  * strings of characters.
  *
- * Copyright (C) 2012 by Emil Brink <emil@obsession.se>.
+ * Copyright (C) 2012-2023 by Emil Brink <emil@obsession.se>.
  *
  * This file is part of Geanyuniq.
  *
@@ -53,7 +53,7 @@ BloomFilter * bloom_filter_new(gsize filter_size, gsize num_hashes, BloomContain
 	const gsize	bits_length = (filter_size + (CHAR_BIT * sizeof *bf->bits) - 1) / (CHAR_BIT * sizeof *bf->bits);
 	const gsize	bits_size = bits_length * sizeof *bf->bits;
 
-	if((bf = g_malloc(sizeof *bf + bits_size)) != NULL)
+	if ((bf = g_malloc(sizeof *bf + bits_size)) != NULL)
 	{
 		bf->m = filter_size;
 		bf->k = num_hashes;
@@ -103,10 +103,9 @@ gsize bloom_filter_size(const BloomFilter *bf)
 void bloom_filter_insert(BloomFilter *bf, const gchar *string, gssize string_length)
 {
 	const gsize	len = string_length > 0 ? string_length : strlen(string);
-	gsize		i;
 
 	/* Repeatedly hash the string, and set bits in the Bloom filter's bit array. */
-	for(i = 0; i < bf->k; i++)
+	for (gsize i = 0; i < bf->k; ++i)
 	{
 		const guint32	hash = MurmurHash2(string, len, i);
 		const gsize	pos = hash % bf->m;
@@ -123,10 +122,9 @@ void bloom_filter_insert(BloomFilter *bf, const gchar *string, gssize string_len
 gboolean bloom_filter_contains(const BloomFilter *bf, const gchar *string, gssize string_length)
 {
 	const gsize	len = string_length > 0 ? string_length : strlen(string);
-	gsize		i;
 
 	/* Check the Bloom filter, by hashing and checking bits. */
-	for(i = 0; i < bf->k; i++)
+	for (gsize i = 0; i < bf->k; ++i)
 	{
 		const guint32	hash = MurmurHash2(string, len, i);
 		const gsize	pos = hash % bf->m;
@@ -134,7 +132,7 @@ gboolean bloom_filter_contains(const BloomFilter *bf, const gchar *string, gssiz
 		const gsize	bit = pos % (CHAR_BIT * sizeof *bf->bits);
 
 		/* If a bit is not set, the element is not contained, for sure. */
-		if((bf->bits[slot] & (1UL << bit)) == 0)
+		if ((bf->bits[slot] & (1UL << bit)) == 0)
 			return FALSE;
 	}
 	/* Bit-checking says yes, call user's contains() function to make sure. */

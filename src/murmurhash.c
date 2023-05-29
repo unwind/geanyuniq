@@ -31,9 +31,9 @@ guint32 MurmurHash2(gconstpointer key, gsize len, guint32 seed)
 
 	/* Mix 4 bytes at a time into the hash. */
 	const guchar * data = key;
-	while(len >= 4)
+	while (len >= 4)
 	{
-		guint32 k = *(guint32 *)data;
+		guint32 k = *(guint32 *) data;
 
 		k *= m;
 		k ^= k >> r;
@@ -47,7 +47,7 @@ guint32 MurmurHash2(gconstpointer key, gsize len, guint32 seed)
 	}
 
 	/* Handle the last few bytes of the input array. */
-	switch(len)
+	switch (len)
 	{
 	case 3: h ^= data[2] << 16;
 	case 2: h ^= data[1] << 8;
