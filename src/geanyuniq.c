@@ -29,16 +29,6 @@
 
 #define	MNEMONIC_NAME	"geanyuniq"
 
-GeanyPlugin         *geany_plugin;
-GeanyData           *geany_data;
-
-PLUGIN_VERSION_CHECK(147)
-
-PLUGIN_SET_INFO("Geanyuniq",
-		"A plugin to automatically delete duplicate lines in the entire document, named after the \"uniq\" shell command.",
-		"2.2",
-		"Emil Brink <emil@obsession.se>")
-
 enum {
 	KEY_GEANY_UNIQ_ADJACENT,
 	KEY_GEANY_UNIQ_GLOBAL,
@@ -50,7 +40,9 @@ static struct {
 	GtkWidget	*global_item;
 
 	GeanyKeyGroup	*key_group;
-} geany_uniq;
+
+	GeanyPlugin		*plugin;
+} geanyuniq;
 
 /* -------------------------------------------------------------------------------------------------------------- */
 
@@ -241,26 +233,43 @@ static gboolean cb_key_group_callback(guint key_id)
 
 /* -------------------------------------------------------------------------------------------------------------- */
 
-void plugin_init(GeanyData *geany_data)
+static gboolean geanyuniq_init(GeanyPlugin *plugin, gpointer pdata)
 {
 	/* This plugin implements a single command, coupled with a menu item. */
-	geany_uniq.adjacent_item = ui_image_menu_item_new(NULL, _("Delete Adjacent Duplicate Lines"));
-	g_signal_connect(G_OBJECT(geany_uniq.adjacent_item), "activate", G_CALLBACK(cb_menu_item_activated), GINT_TO_POINTER(FALSE));
-	gtk_widget_show_all(geany_uniq.adjacent_item);
-	gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu), geany_uniq.adjacent_item);
+	geanyuniq.adjacent_item = ui_image_menu_item_new(NULL, _("Delete Adjacent Duplicate Lines"));
+	g_signal_connect(G_OBJECT(geanyuniq.adjacent_item), "activate", G_CALLBACK(cb_menu_item_activated), GINT_TO_POINTER(FALSE));
+	gtk_widget_show_all(geanyuniq.adjacent_item);
+	gtk_container_add(GTK_CONTAINER(geanyuniq.plugin->geany_data->main_widgets->tools_menu), geanyuniq.adjacent_item);
 
-	geany_uniq.global_item = ui_image_menu_item_new(NULL, _("Delete All Duplicate Lines"));
-	g_signal_connect(G_OBJECT(geany_uniq.global_item), "activate", G_CALLBACK(cb_menu_item_activated), GINT_TO_POINTER(TRUE));
-	gtk_widget_show_all(geany_uniq.global_item);
-	gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu), geany_uniq.global_item);
+	geanyuniq.global_item = ui_image_menu_item_new(NULL, _("Delete All Duplicate Lines"));
+	g_signal_connect(G_OBJECT(geanyuniq.global_item), "activate", G_CALLBACK(cb_menu_item_activated), GINT_TO_POINTER(TRUE));
+	gtk_widget_show_all(geanyuniq.global_item);
+	gtk_container_add(GTK_CONTAINER(geanyuniq.plugin->geany_data->main_widgets->tools_menu), geanyuniq.global_item);
 
-	geany_uniq.key_group = plugin_set_key_group(geany_plugin, MNEMONIC_NAME, NUM_KEYS, cb_key_group_callback);
-	keybindings_set_item(geany_uniq.key_group, KEY_GEANY_UNIQ_ADJACENT, NULL, 0, 0, "geany-uniq-uniq", _("Delete Duplicate Lines"), geany_uniq.adjacent_item);
-	keybindings_set_item(geany_uniq.key_group, KEY_GEANY_UNIQ_GLOBAL, NULL, 0, 0, "geany-uniq-global", _("Delete All Duplicate Lines"), geany_uniq.global_item);
+	geanyuniq.key_group = plugin_set_key_group(geanyuniq.plugin, MNEMONIC_NAME, NUM_KEYS, cb_key_group_callback);
+	keybindings_set_item(geanyuniq.key_group, KEY_GEANY_UNIQ_ADJACENT, NULL, 0, 0, "geany-uniq-uniq", _("Delete Duplicate Lines"), geanyuniq.adjacent_item);
+	keybindings_set_item(geanyuniq.key_group, KEY_GEANY_UNIQ_GLOBAL, NULL, 0, 0, "geany-uniq-global", _("Delete All Duplicate Lines"), geanyuniq.global_item);
+
+	return TRUE;
 }
 
-void plugin_cleanup(void)
+static void geanyuniq_cleanup(GeanyPlugin *plugin, gpointer pdata)
 {
-	gtk_widget_destroy(geany_uniq.adjacent_item);
-	gtk_widget_destroy(geany_uniq.global_item);
+	gtk_widget_destroy(geanyuniq.adjacent_item);
+	gtk_widget_destroy(geanyuniq.global_item);
+}
+
+G_MODULE_EXPORT void geany_load_module(GeanyPlugin *plugin)
+{
+	plugin->info->name = "Geanyuniq";
+	plugin->info->description = "A plugin to automatically delete duplicate lines in the entire document, named after the \"uniq\" shell command.";
+	plugin->info->version = "2.3.0";
+	plugin->info->author = "Emil Brink <emil@obsession.se>";
+
+	plugin->funcs->init = geanyuniq_init;
+	plugin->funcs->cleanup = geanyuniq_cleanup;
+	plugin->funcs->configure = NULL;
+	geanyuniq.plugin = plugin;
+
+	GEANY_PLUGIN_REGISTER(plugin, 225);
 }
